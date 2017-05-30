@@ -10,7 +10,9 @@ get_lakescape(lake, lakescape, geo_data)
 \item{geo_data}{}
 }
 \description{
-Get lakescape
+The \code{get_lakescape} function uses a lake and a user defined landscape 
+(i.e. the lakescape) to summarize various sources of ancillary geospatial 
+data.
 }
 \examples{
 get_lakescape()

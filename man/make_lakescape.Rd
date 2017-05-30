@@ -4,10 +4,10 @@
 \alias{make_lakescape}
 \title{Make lakescape}
 \usage{
-make_lakescape(lake, lakescape, geo_data)
+make_lakescape(lake, lakescape, data_src = c("census", "lulc", "impervious"))
 }
 \arguments{
-\item{geo_data}{}
+\item{data_src}{}
 }
 \description{
 Make lakescape
