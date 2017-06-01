@@ -26,8 +26,20 @@
 get_lakescape <- function(lake, lakescape, 
                           data_src = c("census", "lulc", "impervious"),
                           keep_output = F, ...){
-  lakescape <- list()
-  return(lakescape)
+  lscape <- sf::st_difference(lakescape, lake)
+  
+  for(i in data_src){
+    if(i == "census"){
+      census <- get_census(lscape, keep_output)
+    } else if(i == "lulc"){
+      lulc <- get_lulc(lscape, keep_output)
+    } else {
+      imperv <- get_impervious(lscape, keep_output)
+    }
+  }
+  #combine the output into the single sf or lakescape object
+  
+  lscape
 }
 
 
