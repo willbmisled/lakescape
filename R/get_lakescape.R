@@ -31,15 +31,16 @@
 get_lakescape <- function(lake, lakescape, id = data.frame(id = 1),
                           data_src = c("census", "lulc", "impervious"),
                           keep_output = F, ...){
-  if(is.na(st_crs(lakescape)) | is.na(st_crs(lake))){
+  if(is.na(sf::st_crs(lakescape)) | is.na(sf::st_crs(lake))){
     stop(paste("A valid coordinate reference system is required for lake and 
-               lakescape.  In the meantime, enjoy this dad joke:\n", dadjoke::groan())
+               lakescape.  In the meantime, enjoy this dad joke:\n", 
+               dadjoke::groan()))
   }
   
-  lscape <- sf::st_difference(st_geometry(lakescape), st_geometry(lake))
+  lscape <- sf::st_difference(sf::st_geometry(lakescape), sf::st_geometry(lake))
   #add id - need to find better way than df...
   if(!is.null(id)){
-    lscape <- st_as_sf(cbind(id,lscape))
+    lscape <- sf::st_as_sf(cbind(id,lscape))
   }
   for(i in data_src){
     if(i == "census"){

@@ -4,10 +4,10 @@
 \alias{get_census}
 \title{Get census}
 \usage{
-get_census(lscape, keep_output)
+get_census(lscape, keep_output, api_key = Sys.getenv("CENSUS_API_KEY"))
 }
 \arguments{
-\item{keep_output}{}
+\item{api_key}{}
 }
 \description{
 This function takes an input lakescape, a user-defined land area around a 

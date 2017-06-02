@@ -43,7 +43,7 @@ get_census <- function(lscape, keep_output,
   }
   bg <- sf::st_transform(bg,sf::st_crs(lscape))
   bg <- bg[unlist(sf::st_intersects(lscape,bg)),]
-  lscape_bg <- sf::st_intersection(lscape,bg))
+  lscape_bg <- sf::st_intersection(sf::st_union(lscape),sf::st_union(bg))
   #st_boundary plots 
   #need to figure out how to get the BG ids back onto lscape_bg
   #need to get density for BG need to get areas for bg in lscape and multiply by 
