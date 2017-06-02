@@ -15,4 +15,3 @@ Get impervious
 \examples{
 get_impervious()
 }
-

@@ -15,4 +15,3 @@ Get land use/land cover
 \examples{
 get_lulc()
 }
-

@@ -4,15 +4,15 @@
 \alias{get_census}
 \title{Get census}
 \usage{
-get_census(lake, lakescape, geo_data)
+get_census(lscape, keep_output)
 }
 \arguments{
-\item{lakescape}{}
+\item{keep_output}{}
 }
 \description{
-Get census
+This function takes an input lakescape, a user-defined land area around a 
+lake, and returns the total population for that area.
 }
 \examples{
 get_census()
 }
-

@@ -17,5 +17,7 @@ LazyData: true
 Imports:
     sf,
     raster
-Remotes: walkerke/tidycensus
-RoxygenNote: 5.0.1
+Remotes: 
+    hrecht/censusapi,
+    jhollist/dadjoke
+RoxygenNote: 6.0.1
