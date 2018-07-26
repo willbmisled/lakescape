@@ -7,13 +7,13 @@
 #' 
 #' @param landscape
 #' @param year
-#' @param keep_output
+#' @param spatial #keep the spatial data? Default = FALSE
 #' @param api_key #Your Census API key. Obtain one at http://api.census.gov/data/key_signup.html
 #' 
 #' @export
 #' @examples 
 #' get_census()
-get_fips <- function(landscape, year = 2010, keep_output, 
+get_fips <- function(landscape, year = 2010, spatial = FALSE, 
                        api_key = Sys.getenv("CENSUS_API_KEY")){
 
  #browser()
@@ -51,12 +51,7 @@ get_fips <- function(landscape, year = 2010, keep_output,
   #calc area of landscape-add to attributes
     landscape$ls_area<-sum(as.numeric(sf::st_area(landscape)), na.rm=TRUE)
     
-  #keep attribute ls_area only  ###################START HERE######### lake calls the geometry column "geometry" lake2 uses "Shape"
-    
-    landscape<-dplyr::select(landscape, ls_area, geometry)
-    landscape<-dplyr::select(landscape, ls_area, shape)
-
-  #get counties that lake intersects
+    #get counties that lake intersects
     fips<-as.data.frame(dplyr::slice(county, unlist(sf::st_intersects(landscape, county))))
     
   #get the blockgroups for state(s) and county(s)
@@ -72,34 +67,52 @@ get_fips <- function(landscape, year = 2010, keep_output,
     #reproject blockgrp
     blockgrp<-sf::st_transform(blockgrp,"+init=ESRI:102008")
     
-    #select and rename variables
-    if(year==2000) blockgrp<-dplyr::select(blockgrp, GEOID = BKGPIDFP00, ALAND = ALAND00, AWATER = AWATER00, geometry)
-    if(year==2010) blockgrp<-dplyr::select(blockgrp, GEOID = GEOID10, ALAND = ALAND10, AWATER = AWATER10, geometry)
-    
     #calc area of blockgrp-add to attributes
-    blockgrp$bg_area<-as.numeric(sf::st_area(blockgrp$geometry))
+    blockgrp$bg_area<-as.numeric(sf::st_area(blockgrp))
     
-    #create intersection of landscape and blockgrp for export
+  #create intersection of landscape and blockgrp for export
     int<-sf::st_intersection(landscape,blockgrp)  
     
-    #calc area of intersection-add to attributes
-    int$int_area<-as.numeric(sf::st_area(int$geometry))
+    #calc area of intersection polygons
+    int$int_area<-as.numeric(sf::st_area(int))
     
-    #calculate overlap between landscape and blockgroup (this will be important for landscapes that cross international borders)
-    int$per_ovelap<-round(100*int$ls_area[1]/sum(int$int_area))
+    #calc proportion of original blockgroup included in int polygons
+    int$pro_bg<-round(int$int_area / int$bg_area, 4)
     
-    #return the intersection
-    return(int) 
- 
+    #calc proportion of original landscape included in intersection
+    #note: landscapes that cross international borders or have missing data will have pro_ls < 1
+    int$pro_ls<-round(sum(int$int_area) / int$ls_area[1], 2)
     
+    
+  # create output sf object "out"
+    #select and rename attribute names
+    #convert to data.frame select and rename
+      if(year==2000) out<-dplyr::select(as.data.frame(int), geoid = BKGPIDFP00, aland = ALAND00, 
+                                       awater = AWATER00, ls_area, bg_area, int_area, pro_bg, pro_ls)
+      if(year==2010) out<-dplyr::select(as.data.frame(int), geoid = GEOID10, aland = ALAND10,
+                                       awater = AWATER10, ls_area, bg_area, int_area, pro_bg, pro_ls)
+    
+    #convert geoid, aland and awater to numeric
+      out<-dplyr::mutate(out, geoid=as.numeric(geoid), aland=as.numeric(aland), awater=as.numeric(awater))
+   
+    #if(spatial==TRUE) recombine out and geom to create sf object "out"
+      if(spatial) out<-sf::st_as_sf(cbind(out,sf::st_geometry(int)))
+      
+  #return the output
+    return(out) 
 }
+#######################################################eof#######################################
 
+a10<-get_fips(landscape = lake1, year=2010, spatial = TRUE)
+a00<-get_fips(landscape = lake1, year=2000, spatial = TRUE)
 
-a10<-get_fips(landscape = lake1, year=2010)
-a00<-get_fips(landscape = lake1, year=2000)
+b10<-get_fips(landscape = lake, year=2010, spatial = TRUE)
+b00<-get_fips(landscape = lake, year=2000, spatial = TRUE)
 
-plot(a10[2])
+plot(a00[2])
 plot(a10[3])
+plot(b00[2])
+plot(b10[3])
   
   
   # Get total pop for each block group
@@ -138,8 +151,8 @@ plot(a10[3])
   # lakescape
   
   #add areas
-  input$area_input <-as.numeric(st_area(input$geometry))
-  blockgrp$area_blockgrp <-as.numeric(st_area(blockgrp$geometry))
+  input$area_input <-as.numeric(st_area(input))
+  blockgrp$area_blockgrp <-as.numeric(st_area(blockgrp))
   
   
   
